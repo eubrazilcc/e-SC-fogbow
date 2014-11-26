@@ -1,0 +1,8 @@
+#Create
+infrastructure-cli.bat create --endpoint http://150.165.15.107:8182 --n 1 -DauthUrl=http://150.165.15.107:5000 -Dusername=fogbow -Dpassword=nc3SRPS2 -DtenantName=fogbow -Dplugin_type=openstack --type=one-time --flavor=fogbow_small --image=fogbow-linux-x86
+
+#Get-resource
+infrastructure-cli.bat get-resource-info --endpoint http://150.165.15.107:8182 -DauthUrl=http://150.165.15.107:5000 -Dusername=fogbow -Dpassword=nc3SRPS2 -DtenantName=fogbow -Dplugin_type=openstack --id 5bdccc18-b9bf-4c03-9ed1-0c48bc18175f
+
+#Delete
+infrastructure-cli.bat delete --endpoint http://150.165.15.107:8182 -DauthUrl=http://150.165.15.107:5000 -Dusername=fogbow -Dpassword=nc3SRPS2 -DtenantName=fogbow -Dplugin_type=openstack --id 5bdccc18-b9bf-4c03-9ed1-0c48bc18175f
