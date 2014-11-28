@@ -54,7 +54,7 @@ public class Main {
 			Map<String, String> infraCredentials = getPropertiesByPrefix(properties,
 					ConfigurationConstants.INFRA_CREDENTIALS_PREFIX);
 			
-			infrastructure.configure(infraCredentials);
+			infrastructure.configure(new HashMap<String, String>(infraCredentials));
 			
 			//TODO updating configure!		
 			String infraConfUpdateIntervalStr = properties.getProperty(ConfigurationConstants.INFRA_CONF_UPDATE_INTERVAL);	

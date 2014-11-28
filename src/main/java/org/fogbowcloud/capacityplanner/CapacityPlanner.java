@@ -96,7 +96,11 @@ public class CapacityPlanner {
 		LOGGER.info("Running CapacityPlanner ...");
 		try {
 			monitoringResources();
-			
+		} catch (Throwable e) {
+			LOGGER.error("Some exception happened while monitoring resources.", e);
+		}
+		
+		try {
 			LOGGER.debug("resourcesInUse=" + resourcesInUse.size() + ", resourcesNotAvailable="
 					+ resourcesNotAvailable.size() + ", queueLength=" + queue.getLength());
 			int neededResources = resourcePlanner.calculateResourceNeeds(resourcesInUse.size(),
@@ -112,8 +116,8 @@ public class CapacityPlanner {
 					deallocateResources(Math.abs(neededResources));
 				}
 			}			
-		} catch (Throwable e) {
-			LOGGER.error("Some throwable happened while running capacity planner.", e);
+		} catch (Exception e) {
+			LOGGER.error("Some exception happened while running capacity planner.", e);
 		}
 	}
 
@@ -124,6 +128,7 @@ public class CapacityPlanner {
 		inUseClone.addAll(resourcesInUse);
 		for (String resourceId : inUseClone) {
 			if (!infrastructure.isResourceAvailable(resourceId)) {
+				LOGGER.debug("Changing resourceId=" + resourceId + " from resourcesInUse to resourceNotAvailable." );
 				resourcesNotAvailable.add(resourceId);
 				resourcesInUse.remove(resourceId);
 			}
@@ -134,6 +139,7 @@ public class CapacityPlanner {
 		notAvailableClone.addAll(resourcesNotAvailable);
 		for (String resourceId : notAvailableClone) {
 			if (infrastructure.isResourceAvailable(resourceId)) {
+				LOGGER.debug("Changing resourceId=" + resourceId + " from resourcesNotAvailable to resourceInUse." );
 				resourcesInUse.add(resourceId);
 				resourcesNotAvailable.remove(resourceId);
 			}

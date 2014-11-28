@@ -26,6 +26,7 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
@@ -55,7 +56,7 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 	protected static final String PLUGIN_PACKAGE = "org.fogbowcloud.manager.core.plugins";
 	private String authToken = null;
 	private String fogbowEndpoint = null;
-	private static HttpClient client;
+//	private static HttpClient client;
 
 	private static final Logger LOGGER = Logger.getLogger(FogbowInfrastructureManager.class);
 	
@@ -82,8 +83,9 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 		IdentityPlugin identityPlugin = createIdentityPlugin(
 				credentials.remove(FogbowContants.PLUGIN_TYPE_KEY), credentials);
 		try {
-			Token token = identityPlugin.createToken(credentials);
+			Token token = identityPlugin.createToken(credentials);			
 			this.authToken = token.getAccessId();
+			LOGGER.info("Auth-token updated to " + authToken);
 		} catch (Exception e) {
 			LOGGER.error("Exception while creating token.", e);
 			throw new InfrastructureException(e.getMessage() + "\n"
@@ -98,6 +100,7 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 			throw new InfrastructureException("The fogbowEndpoint " + fogbowEndpoint
 					+ " is invalid or the service is down.");
 		}
+
 //		this.fogbowEndpoint = endpoint;
 		return authToken;
 
@@ -444,15 +447,19 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 			request.addHeader(header);
 		}
 
-		if (client == null) {
-			client = new DefaultHttpClient();
+//		if (client == null) {
+		HttpClient client = new DefaultHttpClient();
 			HttpParams params = new BasicHttpParams();
 			params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+//			HttpConnectionParams.setConnectionTimeout(params, 30000);
 			client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, client
 					.getConnectionManager().getSchemeRegistry()), params);
-		}
+//		}
 
+		LOGGER.debug("requesting method=" + method + ", endpoint=" + endpoint + ", authToken="
+				+ authToken + ", additionalHeaderSize=" + additionalHeaders.size());
 		HttpResponse response = client.execute(request);
+		LOGGER.debug("After request responseStatusCode=" + response.getStatusLine().getStatusCode());
 
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK
 			|| response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {

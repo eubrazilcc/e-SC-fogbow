@@ -2,6 +2,8 @@ package org.fogbowcloud.capacityplanner.resource;
 
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 /**
  * This class implements the calculation for needed resources linearly. Each
  * machine has capacity to execute 'x' jobs. But, if it already exists resources
@@ -28,8 +30,10 @@ public class LinearAllocationPolicy implements AllocationPolicy {
 
 	public static final String JOBS_PER_RESOURCE_KEY = "linear_allocation_jobs_per_resource";
 	private int jobsPerResource;
+	private static final Logger LOGGER = Logger.getLogger(LinearAllocationPolicy.class);
 
 	public LinearAllocationPolicy(Properties properties) {
+		LOGGER.info("Creating Allocation Policy with properties="+properties);
 		try {
 			setJobsPerResource(Integer.parseInt(properties.getProperty(JOBS_PER_RESOURCE_KEY)));
 		} catch (NumberFormatException | NullPointerException e) {
@@ -39,6 +43,7 @@ public class LinearAllocationPolicy implements AllocationPolicy {
 	}
 
 	private void setJobsPerResource(int jobsPerResource) {
+		LOGGER.debug("jobsPerResource=" + jobsPerResource);
 		if (jobsPerResource <= 0) {
 			throw new IllegalArgumentException(
 					"Number of jobs per resource must be a positive integer.");
@@ -52,18 +57,24 @@ public class LinearAllocationPolicy implements AllocationPolicy {
 
 	@Override
 	public int calculateResourceNeeds(int inUse, int notAvailableYet, int currentQueueLength) {
-
 		int totalRequestedResources = inUse + notAvailableYet;
 		if (currentQueueLength == 1) {
 			currentQueueLength = jobsPerResource;
 		}
+
+		int neededResources = currentQueueLength / jobsPerResource;
+		if (currentQueueLength % jobsPerResource != 0){
+			neededResources++;
+		}
 		
-		int neededResources = (int) Math.ceil(currentQueueLength / jobsPerResource);
 		if (totalRequestedResources > neededResources) {
 			int toDeallocate = totalRequestedResources - neededResources;
-
 			if (toDeallocate > notAvailableYet) {
-				return -1 * (inUse - currentQueueLength + notAvailableYet);
+				if (currentQueueLength < inUse){
+					return -1 * (inUse - currentQueueLength + notAvailableYet);
+				} else {
+					return 0;
+				}
 			}
 			return -1 * toDeallocate;
 		}

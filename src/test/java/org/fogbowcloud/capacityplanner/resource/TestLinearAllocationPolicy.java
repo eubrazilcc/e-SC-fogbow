@@ -96,5 +96,14 @@ public class TestLinearAllocationPolicy {
 		Assert.assertEquals(-6, planner.calculateResourceNeeds(0, 11, 10));
 		Assert.assertEquals(-5, planner.calculateResourceNeeds(5, 5, 10));
 	}
+	
+	@Test
+	public void testRandomValues(){
+		LinearAllocationPolicy planner = new LinearAllocationPolicy(2);
+		
+		Assert.assertEquals(3, planner.calculateResourceNeeds(0, 0, 5));
+		Assert.assertEquals(0, planner.calculateResourceNeeds(3, 0, 4));
+		Assert.assertEquals(0, planner.calculateResourceNeeds(4, 0, 5));
+	}
 
 }
