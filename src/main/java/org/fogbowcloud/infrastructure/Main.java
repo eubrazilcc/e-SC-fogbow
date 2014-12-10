@@ -13,10 +13,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.fogbowcloud.ConfigurationConstants;
 import org.fogbowcloud.infrastructure.core.InfrastructureException;
-import org.fogbowcloud.infrastructure.core.InfrastructureManager;
+import org.fogbowcloud.infrastructure.core.InfrastructureProvider;
 import org.fogbowcloud.infrastructure.core.ResourcePropertiesConstants;
 import org.fogbowcloud.infrastructure.fogbow.FogbowContants;
-import org.fogbowcloud.infrastructure.fogbow.FogbowInfrastructureManager;
+import org.fogbowcloud.infrastructure.fogbow.FogbowInfrastructureProvider;
 import org.fogbowcloud.manager.occi.request.RequestConstants;
 
 import com.beust.jcommander.DynamicParameter;
@@ -37,7 +37,7 @@ public class Main {
 		JCommander jc = new JCommander();
 
 		// TODO Allow user to specify the infrastructure that will be used (not only fogbow)
-		InfrastructureManager infrastructure;// = new FogbowInfrastructureManager();
+		InfrastructureProvider infrastructure;// = new FogbowInfrastructureManager();
 		Properties properties = new Properties();
 
 		CreateResourceCommand createResource = new CreateResourceCommand();
@@ -66,7 +66,7 @@ public class Main {
 		if (parsedCommand.equals("create")) {
 			try {
 				properties.put(ConfigurationConstants.INFRA_ENDPOINT, createResource.endpoint);
-				infrastructure = new FogbowInfrastructureManager(properties);
+				infrastructure = new FogbowInfrastructureProvider(properties);
 				infrastructure.configure(createResource.credentials);
 				
 				Map<String, String> resourcesProperties =createResource.resourceProperties; 
@@ -89,7 +89,7 @@ public class Main {
 		} else if (parsedCommand.equals("get-resource-info")) {
 			try {
 				properties.put(ConfigurationConstants.INFRA_ENDPOINT, getResourceInfo.endpoint);
-				infrastructure = new FogbowInfrastructureManager(properties);
+				infrastructure = new FogbowInfrastructureProvider(properties);
 				infrastructure.configure(getResourceInfo.credentials);
 				System.out.println(infrastructure.getResourceInfo(getResourceInfo.resourceId));
 			} catch (InfrastructureException e) {			
@@ -98,7 +98,7 @@ public class Main {
 		} else if (parsedCommand.equals("delete")){
 			try {
 				properties.put(ConfigurationConstants.INFRA_ENDPOINT, deleteResource.endpoint);
-				infrastructure = new FogbowInfrastructureManager(properties);
+				infrastructure = new FogbowInfrastructureProvider(properties);
 				infrastructure.configure(deleteResource.credentials);
 				infrastructure.deleteResource(deleteResource.resourceId);
 				System.out.println("OK");

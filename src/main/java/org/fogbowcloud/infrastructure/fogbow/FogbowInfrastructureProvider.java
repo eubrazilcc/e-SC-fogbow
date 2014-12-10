@@ -26,14 +26,13 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.fogbowcloud.ConfigurationConstants;
 import org.fogbowcloud.infrastructure.core.CommandResult;
 import org.fogbowcloud.infrastructure.core.InfrastructureException;
-import org.fogbowcloud.infrastructure.core.InfrastructureManager;
+import org.fogbowcloud.infrastructure.core.InfrastructureProvider;
 import org.fogbowcloud.infrastructure.core.ResourcePropertiesConstants;
 import org.fogbowcloud.infrastructure.core.SSHUtils;
 import org.fogbowcloud.manager.core.plugins.IdentityPlugin;
@@ -49,33 +48,28 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 
-public class FogbowInfrastructureManager implements InfrastructureManager {
+public class FogbowInfrastructureProvider implements InfrastructureProvider {
 
 	private static final String CATEGORY_PREFIX = "Category:";
 	private static final String X_OCCI_ATTRIBUTE_PREFIX = "X-OCCI-Attribute: ";
 	protected static final String PLUGIN_PACKAGE = "org.fogbowcloud.manager.core.plugins";
 	private String authToken = null;
 	private String fogbowEndpoint = null;
-//	private static HttpClient client;
 
-	private static final Logger LOGGER = Logger.getLogger(FogbowInfrastructureManager.class);
-	
-	public FogbowInfrastructureManager(Properties properties) {
+	private static final Logger LOGGER = Logger.getLogger(FogbowInfrastructureProvider.class);
+
+	public FogbowInfrastructureProvider(Properties properties) {
 		String endpoint = properties.getProperty(ConfigurationConstants.INFRA_ENDPOINT);
 		if (endpoint == null || endpoint.isEmpty()) {
 			throw new IllegalArgumentException("The fogbowEndpoint must not be null or empty.");
 		}
 		this.fogbowEndpoint = endpoint;
 	}
-	
+
 	@Override
-	public String configure(Map<String, String> credentials)
-			throws InfrastructureException {
+	public String configure(Map<String, String> credentials) throws InfrastructureException {
 		LOGGER.info("Configuring the insfrastructure with endpoint=" + fogbowEndpoint
 				+ " and credentials=" + credentials);
-//		if (endpoint == null || endpoint.isEmpty()) {
-//			throw new InfrastructureException("The fogbowEndpoint must not be null or empty.");
-//		}
 		if (!credentials.containsKey(FogbowContants.PLUGIN_TYPE_KEY)) {
 			throw new InfrastructureException("Plugin type was not specified.");
 		}
@@ -83,7 +77,7 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 		IdentityPlugin identityPlugin = createIdentityPlugin(
 				credentials.remove(FogbowContants.PLUGIN_TYPE_KEY), credentials);
 		try {
-			Token token = identityPlugin.createToken(credentials);			
+			Token token = identityPlugin.createToken(credentials);
 			this.authToken = token.getAccessId();
 			LOGGER.info("Auth-token updated to " + authToken);
 		} catch (Exception e) {
@@ -101,9 +95,7 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 					+ " is invalid or the service is down.");
 		}
 
-//		this.fogbowEndpoint = endpoint;
 		return authToken;
-
 	}
 
 	private IdentityPlugin createIdentityPlugin(String pluginType, Map<String, String> credentials)
@@ -181,11 +173,17 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 				+ "=" + numberOfInstanes));
 		headers.add(new BasicHeader("X-OCCI-Attribute", RequestAttribute.TYPE.getValue() + "="
 				+ requestType));
-		headers.add(new BasicHeader("Category", properties.get(ResourcePropertiesConstants.FLAVOR_KEY)
-				+ "; scheme=\"" + RequestConstants.TEMPLATE_RESOURCE_SCHEME + "\"; class=\""
+		headers.add(new BasicHeader("Category", properties
+				.get(ResourcePropertiesConstants.FLAVOR_KEY)
+				+ "; scheme=\""
+				+ RequestConstants.TEMPLATE_RESOURCE_SCHEME
+				+ "\"; class=\""
 				+ RequestConstants.MIXIN_CLASS + "\""));
-		headers.add(new BasicHeader("Category", properties.get(ResourcePropertiesConstants.IMAGE_KEY)
-				+ "; scheme=\"" + RequestConstants.TEMPLATE_OS_SCHEME + "\"; class=\""
+		headers.add(new BasicHeader("Category", properties
+				.get(ResourcePropertiesConstants.IMAGE_KEY)
+				+ "; scheme=\""
+				+ RequestConstants.TEMPLATE_OS_SCHEME
+				+ "\"; class=\""
 				+ RequestConstants.MIXIN_CLASS + "\""));
 
 		if (properties.get(ResourcePropertiesConstants.PUBLICKEY_KEY) != null
@@ -376,11 +374,11 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 	}
 
 	@Override
-	public boolean isResourceAvailable(String resourceId) {		
+	public boolean isResourceAvailable(String resourceId) {
 		if (resourceId == null || resourceId.isEmpty()) {
 			throw new IllegalArgumentException("The resourceId must not be null or empty.");
 		}
-		
+
 		Map<String, String> resourceInfo;
 		try {
 			resourceInfo = getResourceInfo(resourceId);
@@ -390,7 +388,7 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 				return true;
 			}
 		} catch (InfrastructureException e) {
-			LOGGER.error("Exception while getting resource info from resourceId=" +resourceId, e);
+			LOGGER.error("Exception while getting resource info from resourceId=" + resourceId, e);
 		}
 		return false;
 	}
@@ -447,14 +445,11 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 			request.addHeader(header);
 		}
 
-//		if (client == null) {
 		HttpClient client = new DefaultHttpClient();
-			HttpParams params = new BasicHttpParams();
-			params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
-//			HttpConnectionParams.setConnectionTimeout(params, 30000);
-			client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, client
-					.getConnectionManager().getSchemeRegistry()), params);
-//		}
+		HttpParams params = new BasicHttpParams();
+		params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+		client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, client
+				.getConnectionManager().getSchemeRegistry()), params);
 
 		LOGGER.debug("requesting method=" + method + ", endpoint=" + endpoint + ", authToken="
 				+ authToken + ", additionalHeaderSize=" + additionalHeaders.size());
@@ -462,28 +457,28 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 		LOGGER.debug("After request responseStatusCode=" + response.getStatusLine().getStatusCode());
 
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK
-			|| response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-			
+				|| response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
+
 			Header locationHeader = getLocationHeader(response.getAllHeaders());
 			if (locationHeader != null && locationHeader.getValue().contains(RequestConstants.TERM)) {
 				return generateLocationHeaderResponse(locationHeader);
 			} else {
 				return EntityUtils.toString(response.getEntity());
-			}		
+			}
 		} else {
 			throw new InfrastructureException(response.getStatusLine().toString());
 		}
 	}
-	
+
 	protected static Header getLocationHeader(Header[] headers) {
-		for (Header header : headers) {	
+		for (Header header : headers) {
 			if (header.getName().equals("Location")) {
 				return header;
 			}
 		}
 		return null;
 	}
-	
+
 	protected static String generateLocationHeaderResponse(Header header) {
 		String[] locations = header.getValue().split(",");
 		String response = "";
@@ -543,7 +538,8 @@ public class FogbowInfrastructureManager implements InfrastructureManager {
 					"Invalid resouce credentials. It is nedded at least username and (private key file path or user password)");
 		}
 		if (privateKeyFilePath != null) {
-			return SSHUtils.doSshWithPrivateKey(address, port, command, username, privateKeyFilePath);
+			return SSHUtils.doSshWithPrivateKey(address, port, command, username,
+					privateKeyFilePath);
 		}
 		return SSHUtils.doSshWithPassword(address, port, command, username, userPassword);
 	}

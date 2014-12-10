@@ -13,13 +13,13 @@ import org.apache.log4j.Logger;
 import org.fogbowcloud.capacityplanner.queue.EScienceCentralQueue;
 import org.fogbowcloud.capacityplanner.resource.AllocationPolicy;
 import org.fogbowcloud.infrastructure.core.InfrastructureException;
-import org.fogbowcloud.infrastructure.core.InfrastructureManager;
+import org.fogbowcloud.infrastructure.core.InfrastructureProvider;
 
 public class CapacityPlanner {
 
 	private final static int DEFAULT_EXECUTION_PERIOD = 60;
 
-	private InfrastructureManager infrastructure;
+	private InfrastructureProvider infrastructure;
 	private AllocationPolicy resourcePlanner;
 	private EScienceCentralQueue queue;
 	private ScheduledFuture<?> plannerHandle;
@@ -46,7 +46,7 @@ public class CapacityPlanner {
 		this.instanceProperties = instanceProperties;
 	}
 
-	public void setInfrastructure(InfrastructureManager infrastructure) {
+	public void setInfrastructure(InfrastructureProvider infrastructure) {
 		this.infrastructure = infrastructure;
 	}
 

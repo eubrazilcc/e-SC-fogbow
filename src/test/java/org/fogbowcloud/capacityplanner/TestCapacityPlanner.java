@@ -8,7 +8,7 @@ import java.util.Map;
 import org.fogbowcloud.capacityplanner.queue.EScienceCentralQueue;
 import org.fogbowcloud.capacityplanner.resource.AllocationPolicy;
 import org.fogbowcloud.infrastructure.core.InfrastructureException;
-import org.fogbowcloud.infrastructure.core.InfrastructureManager;
+import org.fogbowcloud.infrastructure.core.InfrastructureProvider;
 import org.fogbowcloud.infrastructure.core.ResourcePropertiesConstants;
 import org.fogbowcloud.infrastructure.fogbow.FogbowApplication;
 import org.fogbowcloud.infrastructure.fogbow.FogbowContants;
@@ -64,7 +64,7 @@ public class TestCapacityPlanner {
 	public void testValidInitialize() throws CapacityPlannerException {
 		CapacityPlanner capacity = new CapacityPlanner(defaultProperties);
 
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		
 		EScienceCentralQueue queue = Mockito.mock(EScienceCentralQueue.class);
 		AllocationPolicy resourcePlanner = Mockito.mock(AllocationPolicy.class);
@@ -84,7 +84,7 @@ public class TestCapacityPlanner {
 		// mocking
 		List<String> result = new ArrayList<String>();
 		result.add(FIRST_ID);
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.when(infrastructure.createResource(1, defaultProperties)).thenReturn(result);
 
 		EScienceCentralQueue queue = Mockito.mock(EScienceCentralQueue.class);
@@ -117,7 +117,7 @@ public class TestCapacityPlanner {
 		List<String> result = new ArrayList<String>();
 		result.add(FIRST_ID);
 		result.add(SECOND_ID);
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.when(infrastructure.createResource(2, defaultProperties)).thenReturn(result);
 
 		EScienceCentralQueue queue = Mockito.mock(EScienceCentralQueue.class);
@@ -158,7 +158,7 @@ public class TestCapacityPlanner {
 		result.add("eighth");
 		result.add("ninth");
 		result.add("tenth");
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.when(infrastructure.createResource(10, defaultProperties)).thenReturn(result);
 
 		EScienceCentralQueue queue = Mockito.mock(EScienceCentralQueue.class);
@@ -188,7 +188,7 @@ public class TestCapacityPlanner {
 		CapacityPlanner capacity = new CapacityPlanner(defaultProperties);
 
 		// mocking
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.doThrow(new InfrastructureException("Any exception on creating resource"))
 				.when(infrastructure).createResource(2, defaultProperties);
 
@@ -224,7 +224,7 @@ public class TestCapacityPlanner {
 		resourceInUse.add(FIRST_ID);
 		resourceInUse.add(SECOND_ID);
 		
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.doThrow(new InfrastructureException("Any exception on deallocating resource"))
 				.when(infrastructure).deleteResource(FIRST_ID);
 		Mockito.doThrow(new InfrastructureException("Any exception on deallocating resource"))
@@ -264,7 +264,7 @@ public class TestCapacityPlanner {
 		List<String> resourcesNotAvailable = new ArrayList<String>();
 		resourcesNotAvailable.add(FIRST_ID);
 
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.doNothing().when(infrastructure).deleteResource(FIRST_ID);
 
 		EScienceCentralQueue queue = Mockito.mock(EScienceCentralQueue.class);
@@ -299,7 +299,7 @@ public class TestCapacityPlanner {
 		resourcesNotAvailable.add(FIRST_ID);
 		resourcesNotAvailable.add(SECOND_ID);
 
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.doNothing().when(infrastructure).deleteResource(FIRST_ID);
 		Mockito.doNothing().when(infrastructure).deleteResource(SECOND_ID);
 
@@ -343,7 +343,7 @@ public class TestCapacityPlanner {
 		resourcesInUse.add("seventh");
 		resourcesInUse.add("eighth");
 
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.doNothing().when(infrastructure).deleteResource(Mockito.anyString());
 		Mockito.when(infrastructure.isResourceAvailable(FIRST_ID)).thenReturn(false);
 		Mockito.when(infrastructure.isResourceAvailable(SECOND_ID)).thenReturn(false);
@@ -388,7 +388,7 @@ public class TestCapacityPlanner {
 		resourcesNotAvailable.add(SECOND_ID);
 		resourcesNotAvailable.add(THIRD_ID);
 
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.when(infrastructure.isResourceAvailable(FIRST_ID)).thenReturn(true);
 		Mockito.when(infrastructure.isResourceAvailable(SECOND_ID)).thenReturn(false);
 		Mockito.when(infrastructure.isResourceAvailable(THIRD_ID)).thenReturn(false);
@@ -426,7 +426,7 @@ public class TestCapacityPlanner {
 		resourcesNotAvailable.add(SECOND_ID);
 		resourcesNotAvailable.add(THIRD_ID);
 
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.when(infrastructure.isResourceAvailable(FIRST_ID)).thenReturn(true);
 		Mockito.when(infrastructure.isResourceAvailable(SECOND_ID)).thenReturn(true);
 		Mockito.when(infrastructure.isResourceAvailable(THIRD_ID)).thenReturn(true);
@@ -464,7 +464,7 @@ public class TestCapacityPlanner {
 		resourcesInUse.add(SECOND_ID);
 		resourcesInUse.add(THIRD_ID);
 
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.when(infrastructure.isResourceAvailable(FIRST_ID)).thenReturn(true);
 		Mockito.when(infrastructure.isResourceAvailable(SECOND_ID)).thenReturn(true);
 		Mockito.when(infrastructure.isResourceAvailable(THIRD_ID)).thenReturn(false);
@@ -502,7 +502,7 @@ public class TestCapacityPlanner {
 		resourcesInUse.add(SECOND_ID);
 		resourcesInUse.add(THIRD_ID);
 
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.when(infrastructure.isResourceAvailable(FIRST_ID)).thenReturn(false);
 		Mockito.when(infrastructure.isResourceAvailable(SECOND_ID)).thenReturn(false);
 		Mockito.when(infrastructure.isResourceAvailable(THIRD_ID)).thenReturn(false);
@@ -542,7 +542,7 @@ public class TestCapacityPlanner {
 		List<String> resourcesNotAvailable = new ArrayList<String>();
 		resourcesNotAvailable.add(THIRD_ID);
 
-		InfrastructureManager infrastructure = Mockito.mock(InfrastructureManager.class);
+		InfrastructureProvider infrastructure = Mockito.mock(InfrastructureProvider.class);
 		Mockito.when(infrastructure.isResourceAvailable(FIRST_ID)).thenReturn(false);
 		Mockito.when(infrastructure.isResourceAvailable(SECOND_ID)).thenReturn(false);
 		Mockito.when(infrastructure.isResourceAvailable(THIRD_ID)).thenReturn(true);

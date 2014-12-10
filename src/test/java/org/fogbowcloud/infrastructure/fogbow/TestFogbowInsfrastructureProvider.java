@@ -18,7 +18,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestFogbowInsfrastructureManager {
+public class TestFogbowInsfrastructureProvider {
 
 	private String FIRST_ID = "first";
 	private String SECOND_ID = "second";
@@ -27,7 +27,7 @@ public class TestFogbowInsfrastructureManager {
 	private String FIFTH_ID = "fifth";
 
 	FogbowTestHelper helper;
-	FogbowInfrastructureManager infra;
+	FogbowInfrastructureProvider infra;
 	Map<String, String> defaultProperties;
 
 	@Before
@@ -51,8 +51,7 @@ public class TestFogbowInsfrastructureManager {
 		// setting configuration for testing
 		Properties properties = new Properties();
 		properties.put(ConfigurationConstants.INFRA_ENDPOINT, helper.getFogbowEndepoint());
-		infra = new FogbowInfrastructureManager(properties);
-//		infra.setFogbowEndpoint(helper.getFogbowEndepoint());
+		infra = new FogbowInfrastructureProvider(properties);
 		infra.setAuthToken(helper.getDefaultToken());
 	}
 

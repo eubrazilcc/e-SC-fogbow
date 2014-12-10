@@ -7,9 +7,9 @@ import java.util.Properties;
 
 import org.fogbowcloud.ConfigurationConstants;
 import org.fogbowcloud.infrastructure.core.InfrastructureException;
-import org.fogbowcloud.infrastructure.core.InfrastructureManager;
+import org.fogbowcloud.infrastructure.core.InfrastructureProvider;
 import org.fogbowcloud.infrastructure.fogbow.FogbowContants;
-import org.fogbowcloud.infrastructure.fogbow.FogbowInfrastructureManager;
+import org.fogbowcloud.infrastructure.fogbow.FogbowInfrastructureProvider;
 
 public class MainTest {
 
@@ -42,7 +42,7 @@ public class MainTest {
 		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.14:8182");
 //		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.81:8182");
 		
-		InfrastructureManager infrastructure = new FogbowInfrastructureManager(p);
+		InfrastructureProvider infrastructure = new FogbowInfrastructureProvider(p);
 //
 		try {
 //			System.out.println(infrastructure.configure("http://150.165.15.107:8182", credentials));

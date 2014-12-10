@@ -21,9 +21,9 @@ import org.fogbowcloud.capacityplanner.queue.FakeESCentralQueue;
 import org.fogbowcloud.capacityplanner.resource.AllocationPolicy;
 import org.fogbowcloud.capacityplanner.resource.LinearAllocationPolicy;
 import org.fogbowcloud.infrastructure.core.InfrastructureException;
-import org.fogbowcloud.infrastructure.core.InfrastructureManager;
+import org.fogbowcloud.infrastructure.core.InfrastructureProvider;
 import org.fogbowcloud.infrastructure.core.ResourcePropertiesConstants;
-import org.fogbowcloud.infrastructure.fogbow.FogbowInfrastructureManager;
+import org.fogbowcloud.infrastructure.fogbow.FogbowInfrastructureProvider;
 
 public class Main {
 
@@ -41,13 +41,13 @@ public class Main {
 			properties.load(input);
 	
 			// creating infrastructure
-			InfrastructureManager infrastructure;
+			InfrastructureProvider infrastructure;
 			String infraClass = properties.getProperty(ConfigurationConstants.INFRASTRUCTURE_CLASS);
 			if (infraClass != null) {
-				infrastructure = (InfrastructureManager) createInstance(
+				infrastructure = (InfrastructureProvider) createInstance(
 						ConfigurationConstants.INFRASTRUCTURE_CLASS, properties);
 			} else {
-				infrastructure = new FogbowInfrastructureManager(properties);
+				infrastructure = new FogbowInfrastructureProvider(properties);
 			}
 			
 			String infraEndpoint = properties.getProperty(ConfigurationConstants.INFRA_ENDPOINT);
@@ -136,7 +136,7 @@ public class Main {
 	}
 
 	private static void triggerInfraConfigurationUpdater(
-			final InfrastructureManager infrastructure, final String infraEndpoint,
+			final InfrastructureProvider infrastructure, final String infraEndpoint,
 			final Map<String, String> infraCredentials, int configurationUpdaterInterval) {
 
 		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);

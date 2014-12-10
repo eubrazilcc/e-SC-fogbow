@@ -8,10 +8,9 @@ import java.util.Map;
  * @author giovanni
  *
  */
-public interface InfrastructureManager {
+public interface InfrastructureProvider {
 
-	public String configure(Map<String, String> credentials)
-			throws InfrastructureException;
+	public String configure(Map<String, String> credentials) throws InfrastructureException;
 
 	public List<String> createResource(int numberOfInstanes, Map<String, String> properties)
 			throws InfrastructureException;
@@ -19,8 +18,9 @@ public interface InfrastructureManager {
 	public Map<String, String> getResourceInfo(String resourceId) throws InfrastructureException;
 
 	public void deleteResource(String resourceId) throws InfrastructureException;
-	
-	public CommandResult executeCommand(Map<String, String> resourceInfo, Map<String, String> resourceCredentials, String command) throws InfrastructureException;
-	
+
+	public CommandResult executeCommand(Map<String, String> resourceInfo,
+			Map<String, String> resourceCredentials, String command) throws InfrastructureException;
+
 	public boolean isResourceAvailable(String resourceId);
 }
