@@ -530,9 +530,9 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 		if (resourceCredentials == null) {
 			throw new InfrastructureException("Invalid resouce credentials.");
 		}
-		String username = resourceCredentials.get("username");
-		String privateKeyFilePath = resourceCredentials.get("private_key_file_path");
-		String userPassword = resourceCredentials.get("user_password");
+		String username = resourceCredentials.get(ResourcePropertiesConstants.USERNAME_KEY);
+		String privateKeyFilePath = resourceCredentials.get(ResourcePropertiesConstants.PRIVATE_KEY_FILE_PATH_KEY);
+		String userPassword = resourceCredentials.get(ResourcePropertiesConstants.USER_PASSWORD_KEY);
 		if (username == null || (privateKeyFilePath == null || userPassword == null)) {
 			throw new InfrastructureException(
 					"Invalid resouce credentials. It is nedded at least username and (private key file path or user password)");

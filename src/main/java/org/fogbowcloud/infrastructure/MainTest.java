@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.fogbowcloud.ConfigurationConstants;
 import org.fogbowcloud.infrastructure.core.InfrastructureException;
 import org.fogbowcloud.infrastructure.core.InfrastructureProvider;
+import org.fogbowcloud.infrastructure.core.SSHUtils;
 import org.fogbowcloud.infrastructure.fogbow.FogbowContants;
 import org.fogbowcloud.infrastructure.fogbow.FogbowInfrastructureProvider;
 
@@ -26,33 +27,33 @@ public class MainTest {
 //		credentials.put("username", "fogbow");
 //		credentials.put("password", "nc3SRPS2");
 //		credentials.put("tenantName", "fogbow-project");
-		
-		credentials.put("authUrl", "http://150.165.15.14:5000");
-		credentials.put("username", "fogbow");
-		credentials.put("password", "nc3SRPS2");
-		credentials.put("tenantName", "fogbow-project");
-		
+//		
+//		credentials.put("authUrl", "http://150.165.15.14:5000");
+//		credentials.put("username", "fogbow");
+//		credentials.put("password", "nc3SRPS2");
+//		credentials.put("tenantName", "fogbow-project");
+//		
 //		credentials.put("authUrl", "http://150.165.15.81:5000");
 //		credentials.put("username", "admin");
 //		credentials.put("password", "labstack");
 //		credentials.put("tenantName", "demo");
 		
-		Properties p = new Properties();
-//		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.107:8182");
-		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.14:8182");
-//		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.81:8182");
-		
-		InfrastructureProvider infrastructure = new FogbowInfrastructureProvider(p);
-//
-		try {
-//			System.out.println(infrastructure.configure("http://150.165.15.107:8182", credentials));
-			System.out.println(infrastructure.configure(credentials));
-//			System.out.println(infrastructure.configure("http://150.165.15.81:8182", credentials));
-		} catch (InfrastructureException e) {
-			System.out.println(e.getMessage());
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		Properties p = new Properties();
+////		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.107:8182");
+////		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.14:8182");
+////		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.81:8182");
+//		
+////		InfrastructureProvider infrastructure = new FogbowInfrastructureProvider(p);
+////
+//		try {
+////			System.out.println(infrastructure.configure("http://150.165.15.107:8182", credentials));
+//			System.out.println(infrastructure.configure(credentials));
+////			System.out.println(infrastructure.configure("http://150.165.15.81:8182", credentials));
+//		} catch (InfrastructureException e) {
+//			System.out.println(e.getMessage());
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 //		Map<String, String> properties = new HashMap<String, String>();
 //		
@@ -76,6 +77,12 @@ public class MainTest {
 //			e.printStackTrace();
 //		}
 	
+//		System.out.println(SSHUtils.doSshWithPassword("150.165.15.14", 10002, "ls -lh", "cirros", "cubswin:)" ));
+//		System.out.println(SSHUtils.doSshWithPrivateKey("150.165.15.14", 10002, "ls -lh", "cirros", "C:/Users/cmdadmin/Documents/giovanni/keys/id_rsa.fogmember.txt" ));
+		System.out.println(SSHUtils.doSshWithPassword("150.165.15.107", 22, "ls -lh", "ubuntu", "t2LaaC27" ));
+
+		
+		
 //		System.out.println(SSHUtils.doSshWithPrivateKey("150.165.15.107", 10011, "ls -lh", "cirros", "C:/Users/cmdadmin/Documents/giovanni/keys/id_rsa.fogmember.txt" ));
 //		System.out.println(SSHUtils.doSshWithPassword("150.165.15.107", 10011, "ls -lh", "cirros", "cubswin:)" ));
 		

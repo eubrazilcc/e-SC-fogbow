@@ -26,24 +26,32 @@ public class SSHUtils {
 
 	private static CommandResult doSSH(String address, int port, String command, String username,
 			String authentication, boolean usingPassword) {
+		System.out.println("1");
 		SSHClient ssh = new SSHClient();
 		Session session = null;
 		addBlankHostKeyVerifier(ssh);
+		System.out.println("2");
 		try {
 			ssh.connect(address, port);
 			if (usingPassword) {
+				System.out.println("3");
 				ssh.authPassword(username, authentication);
 			} else {
+				System.out.println("4");
 				// if it doesn't using password, the authentication is key file
 				// path
 				ssh.authPublickey(username, authentication);
 			}
 			session = ssh.startSession();
+			System.out.println("5");
 			Command cmd = session.exec(command);
+			System.out.println("6");
 			cmd.join();
+			System.out.println("7");
 			int cmdExitStatus = cmd.getExitStatus();
 			String cmdOutput = readInputStream(cmd.getInputStream());
 			String cmdErrorMessage = readInputStream(cmd.getErrorStream());
+			System.out.println("8");
 			return new CommandResult(cmdExitStatus, cmdOutput, cmdErrorMessage);
 		} catch (Exception e) {
 			LOGGER.error("Exception while doing ssh.", e);

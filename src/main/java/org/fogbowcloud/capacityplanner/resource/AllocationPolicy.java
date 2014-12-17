@@ -14,6 +14,13 @@ public interface AllocationPolicy {
 	 * @return Number of resources to be allocated. If this number is negative
 	 *         one, it means that resources can be deallocated.
 	 */
-	public int calculateResourceNeeds(int inUse, int notAvailableYet, int currentQueueLength);
+
+	/**
+	 * 
+	 * @param numberOfEngines
+	 * @param currentQueueLength
+	 * @return
+	 */
+	public int calculateResourceNeeds(int numberOfEngines, int currentQueueLength);
 
 }

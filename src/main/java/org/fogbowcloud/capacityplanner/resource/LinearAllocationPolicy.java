@@ -56,8 +56,7 @@ public class LinearAllocationPolicy implements AllocationPolicy {
 	}
 
 	@Override
-	public int calculateResourceNeeds(int inUse, int notAvailableYet, int currentQueueLength) {
-		int totalRequestedResources = inUse + notAvailableYet;
+	public int calculateResourceNeeds(int numberOfEngines, int currentQueueLength) {
 		if (currentQueueLength == 1) {
 			currentQueueLength = jobsPerResource;
 		}
@@ -67,18 +66,12 @@ public class LinearAllocationPolicy implements AllocationPolicy {
 			neededResources++;
 		}
 		
-		if (totalRequestedResources > neededResources) {
-			int toDeallocate = totalRequestedResources - neededResources;
-			if (toDeallocate > notAvailableYet) {
-				if (currentQueueLength < inUse){
-					return -1 * (inUse - currentQueueLength + notAvailableYet);
-				} else {
-					return 0;
-				}
-			}
-			return -1 * toDeallocate;
+		if (currentQueueLength <= numberOfEngines) {
+			return currentQueueLength;
+		} else if (neededResources <= currentQueueLength){
+			return Math.max(neededResources, numberOfEngines);
+		} else {
+			return neededResources;
 		}
-		return neededResources - totalRequestedResources;
 	}
-
 }

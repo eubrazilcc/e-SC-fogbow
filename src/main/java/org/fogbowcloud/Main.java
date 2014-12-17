@@ -2,7 +2,6 @@ package org.fogbowcloud;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,6 +20,7 @@ import org.fogbowcloud.capacityplanner.queue.FakeESCentralQueue;
 import org.fogbowcloud.capacityplanner.resource.AllocationPolicy;
 import org.fogbowcloud.capacityplanner.resource.LinearAllocationPolicy;
 import org.fogbowcloud.infrastructure.core.InfrastructureException;
+import org.fogbowcloud.infrastructure.core.InfrastructureManager;
 import org.fogbowcloud.infrastructure.core.InfrastructureProvider;
 import org.fogbowcloud.infrastructure.core.ResourcePropertiesConstants;
 import org.fogbowcloud.infrastructure.fogbow.FogbowInfrastructureProvider;
@@ -40,23 +40,23 @@ public class Main {
 			input = new FileInputStream(configurationFilePath);
 			properties.load(input);
 	
-			// creating infrastructure
-			InfrastructureProvider infrastructure;
+			// creating infrastructure provider
+			InfrastructureProvider infrastructureProvider;
 			String infraClass = properties.getProperty(ConfigurationConstants.INFRASTRUCTURE_CLASS);
 			if (infraClass != null) {
-				infrastructure = (InfrastructureProvider) createInstance(
+				infrastructureProvider = (InfrastructureProvider) createInstance(
 						ConfigurationConstants.INFRASTRUCTURE_CLASS, properties);
 			} else {
-				infrastructure = new FogbowInfrastructureProvider(properties);
+				infrastructureProvider = new FogbowInfrastructureProvider(properties);
 			}
 			
 			String infraEndpoint = properties.getProperty(ConfigurationConstants.INFRA_ENDPOINT);
 			Map<String, String> infraCredentials = getPropertiesByPrefix(properties,
 					ConfigurationConstants.INFRA_CREDENTIALS_PREFIX);
 			
-			infrastructure.configure(new HashMap<String, String>(infraCredentials));
+			infrastructureProvider.configure(new HashMap<String, String>(infraCredentials));
 			
-			//TODO updating configure!		
+			//TODO updating configure!
 			String infraConfUpdateIntervalStr = properties.getProperty(ConfigurationConstants.INFRA_CONF_UPDATE_INTERVAL);	
 			int infraConfUpdateInterval;
 			try {
@@ -64,8 +64,9 @@ public class Main {
 			} catch (Exception e) {
 				infraConfUpdateInterval = DEFAULT_INFRA_CONF_UPDATE_INTERVAL;
 			}
-			triggerInfraConfigurationUpdater(infrastructure, infraEndpoint, infraCredentials,
+			triggerInfraConfigurationUpdater(infrastructureProvider, infraEndpoint, infraCredentials,
 					infraConfUpdateInterval);
+			
 			
 			// creating queue
 			EScienceCentralQueue queue;
@@ -77,14 +78,14 @@ public class Main {
 				queue = new FakeESCentralQueue(properties);
 			}
 			
-			// creating resource planner 
-			AllocationPolicy resourcePlanner;
-			String resourceClass = properties.getProperty(ConfigurationConstants.RESOURCE_PLANNER_CLASS);
-			if (resourceClass != null) {
-				resourcePlanner = (AllocationPolicy) createInstance(
-						ConfigurationConstants.RESOURCE_PLANNER_CLASS, properties);
+			// creating resource allocation policy 
+			AllocationPolicy allocationPolicy;
+			String allocationPolicyClass = properties.getProperty(ConfigurationConstants.ALLOCATION_POLICY_CLASS);
+			if (allocationPolicyClass != null) {
+				allocationPolicy = (AllocationPolicy) createInstance(
+						ConfigurationConstants.ALLOCATION_POLICY_CLASS, properties);
 			} else {
-				resourcePlanner = new LinearAllocationPolicy(properties);
+				allocationPolicy = new LinearAllocationPolicy(properties);
 			}
 			
 			Map<String, String> resourceProperties = getPropertiesByPrefix(properties,
@@ -95,29 +96,39 @@ public class Main {
 				resourceProperties.put(ResourcePropertiesConstants.PUBLICKEY_KEY, publicKey);			
 			}
 			
-			/*
-			 * Create infrastructureManager and Monitor Create
-			 * defaultInstanceProperties (permanent requests)
-			 * 
-			 * 
-			 * Choose the ResourcePlanner Create the queue
-			 * 
-			 * Create capacityPlanner
-			 */
+			Map<String, String> resourceCredentials = getPropertiesByPrefix(properties,
+					ConfigurationConstants.RESOURCE_CREDENTIALS_PREFIX);
+
+			// creating infrastructure manager
+			InfrastructureManager infraManager;
+			if (properties.getProperty(ConfigurationConstants.MONITORING_INTERVAL) != null){
+				int monitoring_interval = Integer.parseInt(properties.getProperty(ConfigurationConstants.MONITORING_INTERVAL));
+				infraManager = new InfrastructureManager(resourceProperties, resourceCredentials, monitoring_interval);
+			} else {
+				infraManager = new InfrastructureManager(resourceProperties, resourceCredentials);
+			}
 			
-			CapacityPlanner capacityPlanner = new CapacityPlanner(resourceProperties,
-					Integer.parseInt(properties.getProperty(ConfigurationConstants.CAPACITY_EXECUTION_INTERVAL)));
+			infraManager.setInfraProvider(infrastructureProvider);
 			
-			capacityPlanner.setInfrastructure(infrastructure);
+			// creating capacity planner
+			CapacityPlanner capacityPlanner;
+			if (properties.getProperty(ConfigurationConstants.CAPACITY_EXECUTION_INTERVAL) != null){
+				int capacityInterval = Integer.parseInt(properties.getProperty(ConfigurationConstants.CAPACITY_EXECUTION_INTERVAL));
+				capacityPlanner = new CapacityPlanner(capacityInterval);				
+			} else {
+				capacityPlanner = new CapacityPlanner();
+			}		
+			
+			capacityPlanner.setInfraManager(infraManager);
 			capacityPlanner.setQueue(queue);
-			capacityPlanner.setResourcePlanner(resourcePlanner);
+			capacityPlanner.setAllocationPolicy(allocationPolicy);
 			
 			capacityPlanner.initialize();		
 			
 			while (true) {
 				LOGGER.info("Capacity Planner is running...");
-				LOGGER.info("Current resourcesInUse=" + capacityPlanner.getResourcesInUse());
-				LOGGER.info("Current resourcesNotAvailable=" + capacityPlanner.getResourcesNotAvailable());
+				LOGGER.info("Current resourcesInUse=" + infraManager.getResourcesInUse());
+				LOGGER.info("Current resourcesNotAvailable=" + infraManager.getResourcesNotAvailable());
 				waitExecutionInterval(properties);
 			}
 		} catch (IOException e1) {

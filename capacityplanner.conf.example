@@ -1,7 +1,7 @@
 infrastructure_class=org.fogbowcloud.infrastructure.fogbow.FogbowInfrastructureManager
 infrastructure_endpoint=http://localhost:8182
 
-resource_planner_class=org.fogbowcloud.capacityplanner.resource.SimpleLinearResourcePlanner
+allocation_policy_class=org.fogbowcloud.capacityplanner.resource.SimpleLinearResourcePlanner
 linear_allocation_jobs_per_resource=2
 
 queue_class=org.fogbowcloud.capacityplanner.queue.FakeESCentralQueue
@@ -20,4 +20,9 @@ resource_property_flavor=fogbow_small
 resource_property_type=persistent
 resource_property_public_key=/path/to/public/key/file
 
+resource_credential_username=username
+resource_credential_private_key_file_path=/path/to/private/key/file
+resource_credential_user_password=userpassword
+
 capacity_execution_interval=1
+monitoring_interval=1
