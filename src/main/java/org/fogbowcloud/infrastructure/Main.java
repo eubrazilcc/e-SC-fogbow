@@ -37,7 +37,7 @@ public class Main {
 		JCommander jc = new JCommander();
 
 		// TODO Allow user to specify the infrastructure that will be used (not only fogbow)
-		InfrastructureProvider infrastructure;// = new FogbowInfrastructureManager();
+		InfrastructureProvider infrastructure;
 		Properties properties = new Properties();
 
 		CreateResourceCommand createResource = new CreateResourceCommand();

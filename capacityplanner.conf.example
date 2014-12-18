@@ -8,10 +8,10 @@ queue_class=org.fogbowcloud.capacityplanner.queue.FakeESCentralQueue
 fake_queue_file_path=path/to/queue/file
 
 infrastructure_credential_plugin_type=openstack 
-infrastructure_credential_authUrl=http://150.165.15.107:5000 
-infrastructure_credential_username=fogbow
-infrastructure_credential_password=nc3SRPS2
-infrastructure_credential_tenantName=fogbow
+infrastructure_credential_authUrl=http://localhost:5000 
+infrastructure_credential_username=user
+infrastructure_credential_password=password
+infrastructure_credential_tenantName=tenantName
 
 infrastructure_conf_update_interval=50
 
