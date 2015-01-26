@@ -1,28 +1,49 @@
+#Information about the class that will be used to access the infrastructure
 infrastructure_class=org.fogbowcloud.infrastructure.fogbow.FogbowInfrastructureManager
 infrastructure_endpoint=http://localhost:8182
 
+#Information about the class that will be used to calculate the resources needed
 allocation_policy_class=org.fogbowcloud.capacityplanner.resource.SimpleLinearResourcePlanner
 linear_allocation_jobs_per_resource=2
 
+#Information about the class that will be used to access the eSC-Central queue 
 queue_class=org.fogbowcloud.capacityplanner.queue.FakeESCentralQueue
 fake_queue_file_path=path/to/queue/file
 
-infrastructure_credential_plugin_type=openstack 
-infrastructure_credential_authUrl=http://localhost:5000 
-infrastructure_credential_username=user
-infrastructure_credential_password=password
-infrastructure_credential_tenantName=tenantName
+#Infrastructure credentials. The following information are used to create resources on specific infrastructure.
+#Different identity plugins use other information, then it depends on the identity plugin used by infrastructure.
+#This example file is based on openstack identity plugin of fogbow infrastructure.
+#Specifying the fogbow openstack identity plugin 
+infrastructure_credential_plugin_type=openstack
+#Identity plugin URL  
+infrastructure_credential_authUrl=http://150.165.15.107:5000
+#Username  
+infrastructure_credential_username=fogbow
+#Password
+infrastructure_credential_password=nc3SRPS2
+#Tenant Name
+infrastructure_credential_tenantName=fogbow
 
+#Interval of credential updating (in minutes) 
 infrastructure_conf_update_interval=50
 
+#Image that will be used to create instance
 resource_property_image=fogbow-linux-x86
+#Flavor that will be used to create instance
 resource_property_flavor=fogbow_small
+#Type of fogbow request that will be used to create instance
 resource_property_type=persistent
+#Path of public key that will be injected into new instances
 resource_property_public_key=/path/to/public/key/file
 
+#Resource credentials information. These information will be used to do ssh into instances, 
+#then it depends on the image used on instance creation.
 resource_credential_username=username
 resource_credential_private_key_file_path=/path/to/private/key/file
 resource_credential_user_password=userpassword
 
+#Capacity planner execution interval (in minutes). 
 capacity_execution_interval=1
+
+#Monitoring resources execution interval (in minutes)
 monitoring_interval=1
