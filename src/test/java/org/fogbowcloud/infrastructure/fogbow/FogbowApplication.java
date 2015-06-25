@@ -10,15 +10,15 @@ import java.util.Map;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
 import org.fogbowcloud.infrastructure.fogbow.FogbowContants;
-import org.fogbowcloud.manager.occi.core.Category;
-import org.fogbowcloud.manager.occi.core.ErrorType;
-import org.fogbowcloud.manager.occi.core.HeaderUtils;
-import org.fogbowcloud.manager.occi.core.OCCIException;
-import org.fogbowcloud.manager.occi.core.OCCIHeaders;
-import org.fogbowcloud.manager.occi.core.Resource;
-import org.fogbowcloud.manager.occi.core.ResourceRepository;
-import org.fogbowcloud.manager.occi.core.ResponseConstants;
-import org.fogbowcloud.manager.occi.core.Token;
+import org.fogbowcloud.manager.occi.model.Category;
+import org.fogbowcloud.manager.occi.model.ErrorType;
+import org.fogbowcloud.manager.occi.model.HeaderUtils;
+import org.fogbowcloud.manager.occi.model.OCCIException;
+import org.fogbowcloud.manager.occi.model.OCCIHeaders;
+import org.fogbowcloud.manager.occi.model.Resource;
+import org.fogbowcloud.manager.occi.model.ResourceRepository;
+import org.fogbowcloud.manager.occi.model.ResponseConstants;
+import org.fogbowcloud.manager.occi.model.Token;
 import org.fogbowcloud.manager.occi.instance.Instance;
 import org.fogbowcloud.manager.occi.request.Request;
 import org.fogbowcloud.manager.occi.request.RequestAttribute;
@@ -137,8 +137,8 @@ public class FogbowApplication extends Application {
 					resources.add(ResourceRepository.getInstance().get(image));
 				}
 
-				Instance instance = new Instance(INSTANCE_PREFIX + requestId, resources,
-						attributes, new ArrayList<Instance.Link>());
+				Instance instance = null;
+				/*instance = new Instance(INSTANCE_PREFIX + requestId, resources,attributes, new ArrayList<Instance.Link>());*/
 				requestIdToInstance.put(INSTANCE_PREFIX + requestId, instance);
 			} else if (newState.equals(RequestState.OPEN) || newState.equals(RequestState.FAILED)) {
 				request.setState(newState);
@@ -172,9 +172,10 @@ public class FogbowApplication extends Application {
 			String requestId = expectedIds[numberOfRequests];
 			numberOfRequests++;
 
-			Request request = new Request(requestId, new Token(authToken, user, null,
+			Request request = null;
+			/*request = new Request(requestId, new Token(authToken, user, null,
 					new HashMap<String, String>()), new LinkedList<Category>(categories),
-					new HashMap<String, String>(xOCCIAtt));
+					new HashMap<String, String>(xOCCIAtt));*/
 			LOGGER.debug("Created request: " + request);
 			newRequests.add(request);
 

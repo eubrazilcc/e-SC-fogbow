@@ -17,29 +17,41 @@ public class MainTest {
 	public static void main(String[] args) {
 		
 		Map<String, String> credentials = new HashMap<String, String>();
-		credentials.put(FogbowContants.PLUGIN_TYPE_KEY, "openstack");
-//		credentials.put("authUrl", "http://150.165.15.107:5000");
-//		credentials.put("username", "fogbow");
-//		credentials.put("password", "nc3SRPS2");
-//		credentials.put("tenantName", "fogbow");
+		credentials.put(FogbowContants.PLUGIN_TYPE_KEY, "opennebula");
+		credentials.put("authUrl", "http://10.66.64.138:2633");
+		credentials.put("username", "oneadmin");
+		credentials.put("password", "faforademOj3");
+		credentials.put("tenantName", "demo");
 
-//		credentials.put("authUrl", "http://150.165.15.12:5000");
+
+		Properties p = new Properties();
+		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://10.66.64.138:8182");
+
+		InfrastructureProvider infrastructure = new FogbowInfrastructureProvider(p);
+		try {
+			System.out.println(infrastructure.configure( credentials));
+			System.out.println("End of configure");
+		} catch (InfrastructureException e) {
+			System.out.println(e.getMessage());
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		//		credentials.put("authUrl", "http://150.165.15.12:5000");
 //		credentials.put("username", "fogbow");
 //		credentials.put("password", "nc3SRPS2");
 //		credentials.put("tenantName", "fogbow-project");
-//		
+//
 //		credentials.put("authUrl", "http://150.165.15.14:5000");
 //		credentials.put("username", "fogbow");
 //		credentials.put("password", "nc3SRPS2");
 //		credentials.put("tenantName", "fogbow-project");
-//		
+//
 //		credentials.put("authUrl", "http://150.165.15.81:5000");
 //		credentials.put("username", "admin");
 //		credentials.put("password", "labstack");
 //		credentials.put("tenantName", "demo");
-		
-//		Properties p = new Properties();
-////		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.107:8182");
+
 ////		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.14:8182");
 ////		p.put(ConfigurationConstants.INFRA_ENDPOINT, "http://150.165.15.81:8182");
 //		
@@ -79,7 +91,7 @@ public class MainTest {
 	
 //		System.out.println(SSHUtils.doSshWithPassword("150.165.15.14", 10002, "ls -lh", "cirros", "cubswin:)" ));
 //		System.out.println(SSHUtils.doSshWithPrivateKey("150.165.15.14", 10002, "ls -lh", "cirros", "C:/Users/cmdadmin/Documents/giovanni/keys/id_rsa.fogmember.txt" ));
-		System.out.println(SSHUtils.doSshWithPassword("150.165.15.107", 22, "ls -lh", "ubuntu", "t2LaaC27" ));
+	//	System.out.println(SSHUtils.doSshWithPassword("150.165.15.107", 22, "ls -lh", "ubuntu", "t2LaaC27" ));
 
 		
 		

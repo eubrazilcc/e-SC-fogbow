@@ -37,9 +37,9 @@ import org.fogbowcloud.infrastructure.core.ResourcePropertiesConstants;
 import org.fogbowcloud.infrastructure.core.SSHUtils;
 import org.fogbowcloud.manager.core.plugins.IdentityPlugin;
 import org.fogbowcloud.manager.core.plugins.util.Credential;
-import org.fogbowcloud.manager.occi.core.Category;
-import org.fogbowcloud.manager.occi.core.HeaderUtils;
-import org.fogbowcloud.manager.occi.core.Token;
+import org.fogbowcloud.manager.occi.model.Category;
+import org.fogbowcloud.manager.occi.model.HeaderUtils;
+import org.fogbowcloud.manager.occi.model.Token;
 import org.fogbowcloud.manager.occi.instance.Instance;
 import org.fogbowcloud.manager.occi.request.RequestAttribute;
 import org.fogbowcloud.manager.occi.request.RequestConstants;
@@ -54,6 +54,8 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 	private static final String X_OCCI_ATTRIBUTE_PREFIX = "X-OCCI-Attribute: ";
 	protected static final String PLUGIN_PACKAGE = "org.fogbowcloud.manager.core.plugins";
 	private String authToken = null;
+	private String federationAuthToken = null;
+	private String localToken = null;
 	private String fogbowEndpoint = null;
 
 	private static final Logger LOGGER = Logger.getLogger(FogbowInfrastructureProvider.class);
@@ -79,6 +81,8 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 		try {
 			Token token = identityPlugin.createToken(credentials);
 			this.authToken = token.getAccessId();
+			this.federationAuthToken = token.getAccessId();
+			this.localToken = token.getAccessId();
 			LOGGER.info("Auth-token updated to " + authToken);
 		} catch (Exception e) {
 			LOGGER.error("Exception while creating token.", e);
@@ -88,8 +92,16 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 
 		// getting fogbow resources to check if fogbowEndpoint is valid
 		try {
-			doRequest("get", fogbowEndpoint + "/-/", authToken, new HashSet<Header>());
-		} catch (URISyntaxException | HttpException | IOException e) {
+			doRequest("get", fogbowEndpoint + "/-/", authToken, federationAuthToken, new HashSet<Header>());
+		} catch (URISyntaxException e) {
+			LOGGER.error("Exception while chechking fogbow endpoint.", e);
+			throw new InfrastructureException("The fogbowEndpoint " + fogbowEndpoint
+					+ " is invalid or the service is down.");
+		} catch (HttpException e) {
+			LOGGER.error("Exception while chechking fogbow endpoint.", e);
+			throw new InfrastructureException("The fogbowEndpoint " + fogbowEndpoint
+					+ " is invalid or the service is down.");
+		} catch (IOException e) {
 			LOGGER.error("Exception while chechking fogbow endpoint.", e);
 			throw new InfrastructureException("The fogbowEndpoint " + fogbowEndpoint
 					+ " is invalid or the service is down.");
@@ -157,6 +169,7 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 	@Override
 	public List<String> createResource(int numberOfInstanes, Map<String, String> properties)
 			throws InfrastructureException {
+		System.out.println("Creating " + numberOfInstanes + " resources with properties=" + properties);
 		LOGGER.info("Creating " + numberOfInstanes + " resources with properties=" + properties);
 		checkValidNumber(numberOfInstanes);
 		checkValidMap(properties);
@@ -173,12 +186,16 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 				+ "=" + numberOfInstanes));
 		headers.add(new BasicHeader("X-OCCI-Attribute", RequestAttribute.TYPE.getValue() + "="
 				+ requestType));
-		headers.add(new BasicHeader("Category", properties
+
+
+		/*headers.add(new BasicHeader("Category", properties
 				.get(ResourcePropertiesConstants.FLAVOR_KEY)
 				+ "; scheme=\""
 				+ RequestConstants.TEMPLATE_RESOURCE_SCHEME
 				+ "\"; class=\""
-				+ RequestConstants.MIXIN_CLASS + "\""));
+				+ RequestConstants.MIXIN_CLASS + "\""));*/
+
+
 		headers.add(new BasicHeader("Category", properties
 				.get(ResourcePropertiesConstants.IMAGE_KEY)
 				+ "; scheme=\""
@@ -198,10 +215,16 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 		String responseStr;
 		try {
 			responseStr = doRequest("post", fogbowEndpoint + "/" + RequestConstants.TERM,
-					authToken, headers);
+					authToken,federationAuthToken, headers);
 			LOGGER.debug("post response=" + responseStr);
 			return getRequestIds(responseStr);
-		} catch (URISyntaxException | HttpException | IOException e) {
+		} catch (URISyntaxException e) {
+			LOGGER.error("Exception while doing post on fogbowEndpoint.", e);
+			throw new InfrastructureException(e.getMessage());
+		} catch (HttpException e) {
+			LOGGER.error("Exception while doing post on fogbowEndpoint.", e);
+			throw new InfrastructureException(e.getMessage());
+		} catch (IOException e) {
 			LOGGER.error("Exception while doing post on fogbowEndpoint.", e);
 			throw new InfrastructureException(e.getMessage());
 		}
@@ -251,7 +274,7 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 
 		try {
 			String requestResponseStr = doRequest("get", fogbowEndpoint + "/"
-					+ RequestConstants.TERM + "/" + id, authToken, new HashSet<Header>());
+					+ RequestConstants.TERM + "/" + id, authToken, federationAuthToken, new HashSet<Header>());
 			Map<String, String> resourcesInfo = new HashMap<String, String>();
 			LOGGER.debug("get request response=" + requestResponseStr);
 
@@ -276,7 +299,7 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 				if (instanceId != null && !"null".equals(instanceId) && !instanceId.isEmpty()) {
 					try {
 						String instanceResponseStr = doRequest("get", fogbowEndpoint + "/compute/"
-								+ instanceId, authToken, new HashSet<Header>());
+								+ instanceId, authToken, federationAuthToken,  new HashSet<Header>());
 						LOGGER.debug("get instance response=" + instanceResponseStr);
 						Map<String, String> instanceAtt = getAttributes(instanceResponseStr);
 
@@ -286,7 +309,11 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 						resourcesInfo.putAll(instanceAtt);
 
 						return resourcesInfo;
-					} catch (URISyntaxException | HttpException | IOException e) {
+					} catch (URISyntaxException e) {
+						LOGGER.warn("Exception while getting the instance " + instanceId + ".", e);
+					} catch (HttpException e) {
+						LOGGER.warn("Exception while getting the instance " + instanceId + ".", e);
+					} catch (IOException e) {
 						LOGGER.warn("Exception while getting the instance " + instanceId + ".", e);
 					}
 				} else {
@@ -296,7 +323,13 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 
 			}
 			return resourcesInfo;
-		} catch (URISyntaxException | HttpException | IOException e) {
+		} catch (URISyntaxException e) {
+			LOGGER.error("Exception while getting requestId " + id + ".", e);
+			throw new InfrastructureException(e.getMessage());
+		} catch (HttpException e) {
+			LOGGER.error("Exception while getting requestId " + id + ".", e);
+			throw new InfrastructureException(e.getMessage());
+		} catch (IOException e) {
 			LOGGER.error("Exception while getting requestId " + id + ".", e);
 			throw new InfrastructureException(e.getMessage());
 		}
@@ -408,9 +441,13 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 			// delete the instance
 			if (instanceId != null && !"null".equals(instanceId) && !instanceId.isEmpty()) {
 				try {
-					doRequest("delete", fogbowEndpoint + "/compute/" + instanceId, authToken,
+					doRequest("delete", fogbowEndpoint + "/compute/" + instanceId, authToken, federationAuthToken,
 							new HashSet<Header>());
-				} catch (URISyntaxException | HttpException | IOException e) {
+				} catch (URISyntaxException e) {
+					LOGGER.warn("Exception while deleting the instance " + instanceId + ".", e);
+				} catch (HttpException e) {
+					LOGGER.warn("Exception while deleting the instance " + instanceId + ".", e);
+				} catch (IOException e) {
 					LOGGER.warn("Exception while deleting the instance " + instanceId + ".", e);
 				}
 			}
@@ -418,15 +455,76 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 
 		// delete the request permanently
 		try {
-			doRequest("delete", fogbowEndpoint + "/" + RequestConstants.TERM + "/" + id, authToken,
+			doRequest("delete", fogbowEndpoint + "/" + RequestConstants.TERM + "/" + id, authToken, federationAuthToken ,
 					new HashSet<Header>());
-		} catch (URISyntaxException | HttpException | IOException e) {
+		} catch (URISyntaxException e) {
+			LOGGER.error("Exception while deleting the requestId " + id + ".", e);
+			throw new InfrastructureException(e.getMessage());
+		} catch (HttpException e) {
+			LOGGER.error("Exception while deleting the requestId " + id + ".", e);
+			throw new InfrastructureException(e.getMessage());
+		} catch (IOException e) {
 			LOGGER.error("Exception while deleting the requestId " + id + ".", e);
 			throw new InfrastructureException(e.getMessage());
 		}
 	}
 
-	private String doRequest(String method, String endpoint, String authToken,
+	private String doRequest(String method, String endpoint, String authToken, String localAuthToken,
+							 Set<Header> additionalHeaders) throws URISyntaxException, HttpException, IOException,
+			InfrastructureException {
+		HttpUriRequest request = null;
+		if (method.equals("get")) {
+			request = new HttpGet(endpoint);
+		} else if (method.equals("delete")) {
+			request = new HttpDelete(endpoint);
+		} else if (method.equals("post")) {
+			request = new HttpPost(endpoint);
+		}
+		request.addHeader(FogbowContants.CONTENT_TYPE, FogbowContants.OCCI_CONTENT_TYPE);
+		if (authToken != null) {
+			request.addHeader(FogbowContants.X_FEDERATION_AUTH_TOKEN, authToken);
+
+		}if (authToken != null) {
+			request.addHeader(FogbowContants.X_LOCAL_AUTH_TOKEN, authToken);
+		}
+		for (Header header : additionalHeaders) {
+			System.out.println(header);
+			request.addHeader(header);
+		}
+
+		HttpClient client = new DefaultHttpClient();
+		HttpParams params = new BasicHttpParams();
+		params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+		client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, client
+				.getConnectionManager().getSchemeRegistry()), params);
+		System.out.println("requesting method=" + method + ", endpoint=" + endpoint + ", authToken="
+				+ authToken  + ", localauthToken=" + localAuthToken + ", additionalHeaderSize=" + additionalHeaders.size());
+
+		LOGGER.debug("requesting method=" + method + ", endpoint=" + endpoint + ", authToken="
+				+ authToken + ", localauthToken=" + localAuthToken + ", additionalHeaderSize=" + additionalHeaders.size());
+		System.out.println("Before Execute");
+		System.out.println(request.getURI().toString());
+		HttpResponse response = client.execute(request);
+		System.out.println("After Execute");
+		LOGGER.debug("After request responseStatusCode=" + response.getStatusLine().getStatusCode());
+		System.out.println("After request responseStatusCode=" + response.getStatusLine().getStatusCode());
+
+		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK
+				|| response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
+
+			Header locationHeader = getLocationHeader(response.getAllHeaders());
+			if (locationHeader != null && locationHeader.getValue().contains(RequestConstants.TERM)) {
+				return generateLocationHeaderResponse(locationHeader);
+			} else {
+				return EntityUtils.toString(response.getEntity());
+			}
+		} else {
+			throw new InfrastructureException(response.getStatusLine().toString());
+		}
+	}
+
+
+	/*private String doRequest(String method, String endpoint, String authToken,
 			Set<Header> additionalHeaders) throws URISyntaxException, HttpException, IOException,
 			InfrastructureException {
 		HttpUriRequest request = null;
@@ -468,7 +566,7 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 		} else {
 			throw new InfrastructureException(response.getStatusLine().toString());
 		}
-	}
+	}*/
 
 	protected static Header getLocationHeader(Header[] headers) {
 		for (Header header : headers) {

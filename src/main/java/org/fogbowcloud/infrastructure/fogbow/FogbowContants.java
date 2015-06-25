@@ -5,6 +5,8 @@ import org.fogbowcloud.infrastructure.core.ResourcePropertiesConstants;
 public class FogbowContants extends ResourcePropertiesConstants {
 	// headers constants
 	public static final String CONTENT_TYPE = "Content-Type";
+	public static final String X_FEDERATION_AUTH_TOKEN = "X-federation-auth-token";
+	public static final String X_LOCAL_AUTH_TOKEN = "X-Local-Auth-Token";
 	public static final String X_AUTH_TOKEN = "X-Auth-Token";
 	public static final String OCCI_CONTENT_TYPE = "text/occi";
 

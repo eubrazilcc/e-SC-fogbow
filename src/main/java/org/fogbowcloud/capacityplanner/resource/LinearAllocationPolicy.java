@@ -36,7 +36,10 @@ public class LinearAllocationPolicy implements AllocationPolicy {
 		LOGGER.info("Creating Allocation Policy with properties="+properties);
 		try {
 			setJobsPerResource(Integer.parseInt(properties.getProperty(JOBS_PER_RESOURCE_KEY)));
-		} catch (NumberFormatException | NullPointerException e) {
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException(
+					"Number of jobs per resource must be a positive integer.");
+		} catch (NullPointerException e) {
 			throw new IllegalArgumentException(
 					"Number of jobs per resource must be a positive integer.");
 		}

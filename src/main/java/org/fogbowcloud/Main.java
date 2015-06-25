@@ -4,10 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -109,9 +106,12 @@ public class Main {
 			}
 			
 			infraManager.setInfraProvider(infrastructureProvider);
-			
+
+
+
+			//UNCOMMENT THIS PART TO RUN CAPACITY PLANNER
 			// creating capacity planner
-			CapacityPlanner capacityPlanner;
+			/*CapacityPlanner capacityPlanner;
 			if (properties.getProperty(ConfigurationConstants.CAPACITY_EXECUTION_INTERVAL) != null){
 				int capacityInterval = Integer.parseInt(properties.getProperty(ConfigurationConstants.CAPACITY_EXECUTION_INTERVAL));
 				capacityPlanner = new CapacityPlanner(capacityInterval);				
@@ -130,7 +130,17 @@ public class Main {
 				LOGGER.info("Current resourcesInUse=" + infraManager.getResourcesInUse());
 				LOGGER.info("Current resourcesNotAvailable=" + infraManager.getResourcesNotAvailable());
 				waitExecutionInterval(properties);
-			}
+			}*/
+
+			//COMMENT THIS PART WHEN RUNNING THE ENTIRE CODE AND NOT JUST TESTING AS IF TO CREATE THE VM
+			System.out.println("-----------------CREATING A NEW VM------------------------");
+			List<String> results =  infrastructureProvider.createResource(1, resourceProperties);
+			System.out.println("GETTING RESOURCE ID");
+			System.out.println(results.get(0));
+			System.out.println("GETTING RESOURCE INFO");
+			System.out.println(infrastructureProvider.getResourceInfo(results.get(0)));
+
+
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

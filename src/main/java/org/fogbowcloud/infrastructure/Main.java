@@ -83,7 +83,9 @@ public class Main {
 				for (String currentId : ids) {
 					System.out.println(currentId);
 				}
-			} catch (InfrastructureException | IOException e) {
+			} catch (InfrastructureException e) {
+				System.out.println(e.getMessage());
+			} catch (IOException e) {
 				System.out.println(e.getMessage());
 			}
 		} else if (parsedCommand.equals("get-resource-info")) {
