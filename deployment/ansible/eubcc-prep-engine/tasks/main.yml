@@ -1,0 +1,9 @@
+---
+- name: Install some basic dependencies
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - xmlstarlet
+    - cloud-init
+
+- name: Copy the prepEngine script
+  copy: src=prepEngine.sh dest="~esc-engine/prepEngine.sh" owner=esc-engine group=esc mode=a+x
