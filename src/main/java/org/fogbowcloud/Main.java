@@ -46,13 +46,14 @@ public class Main {
 			} else {
 				infrastructureProvider = new FogbowInfrastructureProvider(properties);
 			}
-			
+
+
 			String infraEndpoint = properties.getProperty(ConfigurationConstants.INFRA_ENDPOINT);
 			Map<String, String> infraCredentials = getPropertiesByPrefix(properties,
 					ConfigurationConstants.INFRA_CREDENTIALS_PREFIX);
-			
+			System.out.println("before configure");
 			infrastructureProvider.configure(new HashMap<String, String>(infraCredentials));
-			
+			System.out.println("after configure");
 			//TODO updating configure!
 			String infraConfUpdateIntervalStr = properties.getProperty(ConfigurationConstants.INFRA_CONF_UPDATE_INTERVAL);	
 			int infraConfUpdateInterval;
@@ -63,7 +64,7 @@ public class Main {
 			}
 			triggerInfraConfigurationUpdater(infrastructureProvider, infraEndpoint, infraCredentials,
 					infraConfUpdateInterval);
-			
+			System.out.println("before queue");
 			
 			// creating queue
 			EScienceCentralQueue queue;
@@ -97,6 +98,7 @@ public class Main {
 					ConfigurationConstants.RESOURCE_CREDENTIALS_PREFIX);
 
 			// creating infrastructure manager
+			System.out.println("before infra");
 			InfrastructureManager infraManager;
 			if (properties.getProperty(ConfigurationConstants.MONITORING_INTERVAL) != null){
 				int monitoring_interval = Integer.parseInt(properties.getProperty(ConfigurationConstants.MONITORING_INTERVAL));

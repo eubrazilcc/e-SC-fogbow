@@ -186,7 +186,16 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 				+ "=" + numberOfInstanes));
 		headers.add(new BasicHeader("X-OCCI-Attribute", RequestAttribute.TYPE.getValue() + "="
 				+ requestType));
-
+		//trying to add user data properties to the request - Anirudh
+		if (properties.get(ResourcePropertiesConstants.USER_DATA_FILE) != null
+				&& !properties.get(ResourcePropertiesConstants.USER_DATA_FILE).isEmpty()
+				&& properties.get(ResourcePropertiesConstants.USER_DATA_FILE_CONTENT_TYPE) != null
+				&& !properties.get(ResourcePropertiesConstants.USER_DATA_FILE_CONTENT_TYPE).isEmpty()) {
+			headers.add(new BasicHeader("X-OCCI-Attribute", RequestAttribute.EXTRA_USER_DATA_ATT.getValue()
+					+ "=" + "#cloud-config[[\\n]]bootcmd:[[\\n]]- echo 10.63.0.155 >/etc/engine"));
+			headers.add(new BasicHeader("X-OCCI-Attribute", RequestAttribute.EXTRA_USER_DATA_CONTENT_TYPE_ATT.getValue()
+					+ "=" + "text/cloud-config"));
+		}
 
 		/*headers.add(new BasicHeader("Category", properties
 				.get(ResourcePropertiesConstants.FLAVOR_KEY)
@@ -212,7 +221,13 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 					.getValue() + "=" + properties.get(ResourcePropertiesConstants.PUBLICKEY_KEY)));
 		}
 
+		//headers.add(new BasicHeader())
+
 		String responseStr;
+		System.out.println("Fogbow End Point" + fogbowEndpoint);
+		System.out.println("headers" + headers);
+		System.out.println("federation auth token " + federationAuthToken);
+		System.out.println("auth token " + authToken);
 		try {
 			responseStr = doRequest("post", fogbowEndpoint + "/" + RequestConstants.TERM,
 					authToken,federationAuthToken, headers);
@@ -491,6 +506,8 @@ public class FogbowInfrastructureProvider implements InfrastructureProvider {
 			System.out.println(header);
 			request.addHeader(header);
 		}
+
+		System.out.println("Request : " + request.getURI().toString());
 
 		HttpClient client = new DefaultHttpClient();
 		HttpParams params = new BasicHttpParams();

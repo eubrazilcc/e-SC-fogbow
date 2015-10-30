@@ -11,4 +11,7 @@ public class ResourcePropertiesConstants {
 	public static final String USER_PASSWORD_KEY = "user_password";
 	public static final String PRIVATE_KEY_FILE_PATH_KEY = "private_key_file_path";
 
+	public static final String USER_DATA_FILE = "user_data_file";
+	public static final String USER_DATA_FILE_CONTENT_TYPE= "user_data_file_content_type";
+
 }
